@@ -21,9 +21,9 @@ Locality matching, valuation, the map/portfolio surface, and the language toggle
 ## Quickstart
 
 ```bash
-pnpm install
+npm install
 cp .env.example .env        # then add your OPENAI_API_KEY
-pnpm dev                    # http://localhost:3000
+npm run dev                    # http://localhost:3000
 ```
 
 Drop `data/samples/kn-clean-sale-deed.pdf` (or several files together) onto the upload card to see a parcel extracted. Upload the `kn-flawed-*` pair together to see `CHAIN_GAP` + `ACTIVE_ENCUMBRANCE`.
@@ -33,26 +33,26 @@ Drop `data/samples/kn-clean-sale-deed.pdf` (or several files together) onto the 
 A thin one-document slice, useful before wiring anything on top:
 
 ```bash
-pnpm verify:extract                                   # clean Kannada sale deed
-pnpm verify:extract data/samples/hi-sale-deed.pdf     # any sample
+npm run verify:extract                                   # clean Kannada sale deed
+npm run verify:extract data/samples/hi-sale-deed.pdf     # any sample
 ```
 
 ### Checks
 
 ```bash
-pnpm typecheck
-pnpm test        # risk-flag + schema unit tests (no API key needed)
-pnpm lint
+npm run typecheck
+npm test        # risk-flag + schema unit tests (no API key needed)
+npm run lint
 ```
 
 ### Rate ingestion (Phase 2)
 
 ```bash
-pnpm generate:rates    # synthetic Kannada guidance-value PDFs -> data/rates/raw/
-pnpm ingest:rates      # GPT-5.6 vision -> data/rates/ka_bengaluru_urban.json (needs key)
+npm run generate:rates    # synthetic Kannada guidance-value PDFs -> data/rates/raw/
+npm run ingest:rates      # GPT-5.6 vision -> data/rates/ka_bengaluru_urban.json (needs key)
 ```
 
-Regenerate the sample deeds with `pnpm generate:samples`. **Note:** the generators render Kannada/Hindi via system fonts — on a fresh Linux box install `fonts-noto` (Noto Sans Kannada + Devanagari) or text renders as boxes. The committed PDFs/PNGs are already rendered, so this only matters if you regenerate.
+Regenerate the sample deeds with `npm run generate:samples`. **Note:** the generators render Kannada/Hindi via system fonts — on a fresh Linux box install `fonts-noto` (Noto Sans Kannada + Devanagari) or text renders as boxes. The committed PDFs/PNGs are already rendered, so this only matters if you regenerate.
 
 ## Configuration
 
