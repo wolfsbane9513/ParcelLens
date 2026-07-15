@@ -9,10 +9,12 @@
     "lint": "eslint .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "generate:samples": "tsx scripts/generate-samples.ts"
+    "generate:samples": "tsx scripts/generate-samples.ts",
+    "verify:extract": "tsx --env-file=.env scripts/verify-extract.ts"
   },
   "dependencies": {
     "next": "16.2.10",
+    "openai": "^6.46.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^4.4.3"
