@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { randomUUID } from "node:crypto";
 import { ParcelRecordSchema, type ParcelRecord, type SourceDocument } from "@/lib/schemas";
@@ -8,23 +7,13 @@ import {
   type DocExtraction,
 } from "@/lib/prompts/extraction";
 import { evaluateRiskFlags, type DocExtent } from "@/lib/risk-flags";
+import { getOpenAI, fileContentPart, EXTRACTION_MODEL, type UploadFile } from "@/lib/openai";
 
-export const EXTRACTION_MODEL = "gpt-5.6"; // AGENTS §6 — do not substitute.
-
-export type UploadFile = { filename: string; mimeType: string; base64: string };
+export { EXTRACTION_MODEL, type UploadFile };
 
 // One document read result, kept alongside the raw extraction so the merge step
 // can weigh confidence and diff per-doc extents.
 type ReadDoc = { file: UploadFile; doc_id: string; extraction: DocExtraction };
-
-let client: OpenAI | null = null;
-function getClient(): OpenAI {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is not set — add it to .env before running extraction.");
-  }
-  client ??= new OpenAI();
-  return client;
-}
 
 // sqft per one unit. gunta/cent are Karnataka land units.
 const SQFT_PER: Record<string, number> = {
@@ -35,26 +24,15 @@ const SQFT_PER: Record<string, number> = {
   cent: 435.6,
 };
 
-function toDataUrl(file: UploadFile): string {
-  return `data:${file.mimeType};base64,${file.base64}`;
-}
-
-function contentPart(file: UploadFile) {
-  if (file.mimeType === "application/pdf") {
-    return { type: "input_file" as const, filename: file.filename, file_data: toDataUrl(file) };
-  }
-  return { type: "input_image" as const, image_url: toDataUrl(file), detail: "high" as const };
-}
-
 // Call the model for one document. One retry with the parse error appended, per
 // AGENTS §5; never returns unvalidated output.
 async function readDocument(file: UploadFile): Promise<DocExtraction> {
-  const openai = getClient();
+  const openai = getOpenAI();
   const input = (extra?: string) => [
     { role: "system" as const, content: EXTRACTION_PROMPT_V1 + (extra ? `\n\n${extra}` : "") },
     {
       role: "user" as const,
-      content: [contentPart(file), { type: "input_text" as const, text: "Extract this document." }],
+      content: [fileContentPart(file), { type: "input_text" as const, text: "Extract this document." }],
     },
   ];
 

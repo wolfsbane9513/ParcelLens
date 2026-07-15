@@ -4,7 +4,7 @@ Multilingual property due-diligence for real estate teams evaluating land in Ben
 
 > **Screening tool — not a substitute for a legal title opinion.**
 
-## What works today (through Phase 1)
+## What works today (through Phase 2)
 
 - **Upload → extract → flag** loop. Drop a sale deed and/or its EC on the landing page; they are read by GPT-5.6 vision and merged (by survey number + village) into one parcel card.
 - **Structured extraction** into strict Zod-validated `ParcelRecord`s (`src/lib/schemas.ts` is the source of truth). PDFs and images go straight to the model as `input_file` / `input_image` — no OCR, no rasterization step.
@@ -12,7 +12,11 @@ Multilingual property due-diligence for real estate teams evaluating land in Ben
 - **Honest failure states**: a non-property upload (e.g. a photo) returns a friendly "not a property document"; malformed model output is retried once then surfaced as an error — never a crash.
 - **Six synthetic sample documents** in `data/samples/` (2 Kannada deeds, 2 Kannada ECs, 1 Hindi deed, 1 English deed). One deed+EC pair carries a deliberate chain gap + active mortgage to exercise the red flags. These are synthetic demo documents, not legal records.
 
-Locality matching, guidance-value lookup, the map/portfolio surface, and the language toggle are staged in later phases (see `PARCELLENS_BUILD_PLAN.md`).
+- **Guidance-value (circle-rate) ingestion** (`scripts/ingest-rates.ts`): regional-language rate-table PDFs → GPT-5.6 vision → validated `RateEntry[]` in `data/rates/ka_bengaluru_urban.json`, each row carrying native + romanized locality and a source citation. Idempotent (re-runs skip already-ingested files; `--force` to re-extract) with a row-completeness guard against silent table truncation.
+
+Locality matching, valuation, the map/portfolio surface, and the language toggle are staged in later phases (see `PARCELLENS_BUILD_PLAN.md`).
+
+> **Rate data is synthetic.** Per plan §9, the guidance-value PDFs in `data/rates/raw/` are generated Kannada rate tables (`scripts/generate-rate-table.ts`), not live Kaveri-portal downloads — the portal has CAPTCHA/login. The **ingestion pipeline** is the product; swapping in real downloaded PDFs is a drop-in.
 
 ## Quickstart
 
@@ -41,7 +45,14 @@ pnpm test        # risk-flag + schema unit tests (no API key needed)
 pnpm lint
 ```
 
-Regenerate the samples with `pnpm generate:samples`.
+### Rate ingestion (Phase 2)
+
+```bash
+pnpm generate:rates    # synthetic Kannada guidance-value PDFs -> data/rates/raw/
+pnpm ingest:rates      # GPT-5.6 vision -> data/rates/ka_bengaluru_urban.json (needs key)
+```
+
+Regenerate the sample deeds with `pnpm generate:samples`. **Note:** the generators render Kannada/Hindi via system fonts — on a fresh Linux box install `fonts-noto` (Noto Sans Kannada + Devanagari) or text renders as boxes. The committed PDFs/PNGs are already rendered, so this only matters if you regenerate.
 
 ## Configuration
 

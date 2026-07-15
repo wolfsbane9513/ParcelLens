@@ -10,7 +10,9 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "generate:samples": "tsx scripts/generate-samples.ts",
-    "verify:extract": "tsx --env-file=.env scripts/verify-extract.ts"
+    "verify:extract": "tsx --env-file=.env scripts/verify-extract.ts",
+    "generate:rates": "tsx scripts/generate-rate-table.ts",
+    "ingest:rates": "tsx --env-file=.env scripts/ingest-rates.ts"
   },
   "dependencies": {
     "next": "16.2.10",
