@@ -1,9 +1,10 @@
 import type { ParcelRecord, RiskFlag } from "@/lib/schemas";
+import { parcelSeverity, SEVERITY_COLOR, SEVERITY_LABEL } from "@/lib/severity";
 
-const SEVERITY: Record<RiskFlag["severity"], { bg: string; fg: string; label: string }> = {
-  red: { bg: "#fbe4e4", fg: "#9f1d1d", label: "Blocking" },
-  amber: { bg: "#fbf0d8", fg: "#8a5a10", label: "Review" },
-  info: { bg: "#e9efe4", fg: "#425446", label: "Note" },
+const FLAG_STYLE: Record<RiskFlag["severity"], { bg: string; fg: string }> = {
+  red: { bg: "#fbe4e4", fg: "#9f1d1d" },
+  amber: { bg: "#fbf0d8", fg: "#8a5a10" },
+  info: { bg: "#e9efe4", fg: "#425446" },
 };
 
 function inr(n: number): string {
@@ -20,9 +21,9 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 }
 
 export function ParcelCard({ parcel }: { parcel: ParcelRecord }) {
-  const { identifiers: id, extent, consideration, parties, chain_of_title, encumbrances, source_documents, risk_flags } = parcel;
-  const worst = risk_flags.some((f) => f.severity === "red") ? "red" : risk_flags.some((f) => f.severity === "amber") ? "amber" : "green";
-  const accent = worst === "red" ? "#b91c1c" : worst === "amber" ? "#b45309" : "#2f7d4f";
+  const { identifiers: id, extent, consideration, parties, chain_of_title, encumbrances, source_documents, risk_flags, valuation } = parcel;
+  const severity = parcelSeverity(parcel);
+  const accent = SEVERITY_COLOR[severity];
 
   return (
     <article className="overflow-hidden rounded-[1.5rem] border border-[#17211c]/12 bg-[#fffdf8] shadow-[0_18px_60px_rgba(23,56,42,0.1)]">
@@ -37,14 +38,14 @@ export function ParcelCard({ parcel }: { parcel: ParcelRecord }) {
           </p>
         </div>
         <span className="shrink-0 rounded-full px-3 py-1 text-xs font-bold" style={{ background: `${accent}1a`, color: accent }}>
-          {worst === "red" ? "Blocking issues" : worst === "amber" ? "Needs review" : "Clear"}
+          {SEVERITY_LABEL[severity]}
         </span>
       </header>
 
       {risk_flags.length > 0 && (
         <div className="space-y-2 border-b border-[#17211c]/10 bg-[#faf8f1] px-6 py-4">
           {risk_flags.map((f, i) => {
-            const s = SEVERITY[f.severity];
+            const s = FLAG_STYLE[f.severity];
             return (
               <div key={`${f.code}-${i}`} className="flex items-start gap-3 text-sm">
                 <span className="mt-0.5 shrink-0 rounded px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase" style={{ background: s.bg, color: s.fg }}>
@@ -98,6 +99,40 @@ export function ParcelCard({ parcel }: { parcel: ParcelRecord }) {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {valuation && (
+        <section className="border-t border-[#17211c]/10 px-6 py-5">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8a9389]">Valuation</p>
+            {valuation.match_method !== "none" && (
+              <span className="text-[10px] text-[#a4aa9e]">matched via {valuation.match_method.replace("_", " ")} · {Math.round(valuation.match_confidence * 100)}%</span>
+            )}
+          </div>
+          {valuation.matched_rate ? (
+            <>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+                <Field label="Guidance value" value={inr(valuation.guidance_value_total_inr)} />
+                <div>
+                  <dt className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#8a9389]">Gap vs deal</dt>
+                  <dd className="mt-0.5 text-sm font-semibold" style={{ color: valuation.gap_pct < 0 ? "#b91c1c" : "#2f7d4f" }}>
+                    {valuation.gap_pct >= 0 ? "+" : ""}{(valuation.gap_pct * 100).toFixed(1)}%
+                  </dd>
+                </div>
+                <Field label="Duty basis" value={inr(valuation.duty_basis_inr)} />
+                <Field label="Total txn cost" value={inr(valuation.total_transaction_cost_inr)} />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#68766b]">
+                <span>Stamp duty {inr(valuation.stamp_duty_inr)}</span>
+                <span>Cess {inr(valuation.cess_inr)}</span>
+                <span>Surcharge {inr(valuation.surcharge_inr)}</span>
+                <span>Registration {inr(valuation.registration_fee_inr)}</span>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-[#8a9389]">No guidance-rate data for this locality — transaction cost estimated on the deal price.</p>
+          )}
         </section>
       )}
 

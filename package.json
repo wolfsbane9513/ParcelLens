@@ -14,7 +14,8 @@
     "generate:rates": "tsx scripts/generate-rate-table.ts",
     "ingest:rates": "tsx --env-file=.env scripts/ingest-rates.ts",
     "build:index": "tsx --env-file=.env scripts/build-locality-index.ts",
-    "verify:match": "tsx --env-file=.env scripts/verify-match.ts"
+    "verify:match": "tsx --env-file=.env scripts/verify-match.ts",
+    "build:sample-portfolio": "tsx --env-file=.env scripts/build-sample-portfolio.ts"
   },
   "dependencies": {
     "next": "16.2.10",

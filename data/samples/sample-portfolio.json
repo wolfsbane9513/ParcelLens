@@ -1,0 +1,405 @@
+[
+  {
+    "parcel_id": "0fb37e53-131e-40b6-ae95-613ce431b8d3",
+    "created_at": "2026-07-16T04:50:09.468Z",
+    "source_documents": [
+      {
+        "doc_id": "a7514ac7-76c7-4857-8bf9-fb1bf561268e",
+        "doc_type": "sale_deed",
+        "language": "kn",
+        "filename": "kn-clean-sale-deed.pdf",
+        "extraction_confidence": 0.98
+      },
+      {
+        "doc_id": "d2e45f3d-39a3-4eaf-a429-65e76f429e27",
+        "doc_type": "encumbrance_certificate",
+        "language": "kn",
+        "filename": "kn-clean-encumbrance-certificate.pdf",
+        "extraction_confidence": 0.98
+      }
+    ],
+    "identifiers": {
+      "survey_number": "45/2",
+      "site_number": null,
+      "khata_number": null,
+      "village": "ಯಲಹಂಕ",
+      "hobli": "ಯಲಹಂಕ ಹೋಬಳಿ",
+      "taluk": "ಬೆಂಗಳೂರು ಉತ್ತರ",
+      "district": "ಬೆಂಗಳೂರು ನಗರ",
+      "state": "KA",
+      "pin_code": null
+    },
+    "extent": {
+      "value": 1200,
+      "unit": "sqft",
+      "sqft_normalized": 1200
+    },
+    "parties": {
+      "sellers": [
+        "ರವಿ ಕುಮಾರ್",
+        "ಆಶಾ ಕುಮಾರ್"
+      ],
+      "buyers": [
+        "ಮೀರಾ ರಾವ್"
+      ]
+    },
+    "consideration": {
+      "amount_inr": 7200000,
+      "date": "2026-06-10"
+    },
+    "chain_of_title": [
+      {
+        "from": "ರವಿ ಕುಮಾರ್ ಮತ್ತು ಆಶಾ ಕುಮಾರ್",
+        "to": "ಮೀರಾ ರಾವ್",
+        "instrument": "sale",
+        "date": "2026-06-10",
+        "registration_number": null
+      }
+    ],
+    "encumbrances": [],
+    "boundaries": {
+      "north": "ರಸ್ತೆ",
+      "south": "ಸೈಟ್ 46",
+      "east": "ಉದ್ಯಾನ",
+      "west": "ಸೈಟ್ 44"
+    },
+    "geo": {
+      "lat": 13.1007,
+      "lng": 77.5963,
+      "precision": "locality",
+      "source": "geocode"
+    },
+    "risk_flags": [],
+    "valuation": {
+      "matched_rate": {
+        "state": "KA",
+        "district": "Bengaluru Urban",
+        "taluk": "Bengaluru North",
+        "hobli": null,
+        "locality_native": "ಯಲಹಂಕ",
+        "locality_romanized": "Yelahanka",
+        "property_type": "residential_site",
+        "road_width_category": "12 ಮೀ ವರೆಗೆ",
+        "rate_per_sqft_inr": 5500,
+        "effective_date": "2024-04-01",
+        "source_notification": "ka_bengaluru_north_guidance.pdf"
+      },
+      "match_confidence": 1,
+      "match_method": "exact",
+      "guidance_value_total_inr": 6600000,
+      "deal_price_inr": 7200000,
+      "gap_pct": 0.09090909090909091,
+      "duty_basis_inr": 7200000,
+      "stamp_duty_inr": 360000,
+      "cess_inr": 36000,
+      "surcharge_inr": 7200,
+      "registration_fee_inr": 144000,
+      "total_transaction_cost_inr": 547200,
+      "flags": []
+    }
+  },
+  {
+    "parcel_id": "39d37fac-875d-4d64-81bb-53881def89d2",
+    "created_at": "2026-07-16T04:50:50.298Z",
+    "source_documents": [
+      {
+        "doc_id": "56536731-b703-45d2-a601-489ca1a71267",
+        "doc_type": "sale_deed",
+        "language": "kn",
+        "filename": "kn-flawed-sale-deed.pdf",
+        "extraction_confidence": 0.97
+      },
+      {
+        "doc_id": "56324bc1-0fc0-463f-b967-946c95878cff",
+        "doc_type": "encumbrance_certificate",
+        "language": "kn",
+        "filename": "kn-flawed-encumbrance-certificate.pdf",
+        "extraction_confidence": 0.96
+      }
+    ],
+    "identifiers": {
+      "survey_number": "45/2",
+      "site_number": null,
+      "khata_number": null,
+      "village": "ಯಲಹಂಕ",
+      "hobli": "ಯಲಹಂಕ ಹೋಬಳಿ",
+      "taluk": "ಬೆಂಗಳೂರು ಉತ್ತರ",
+      "district": "ಬೆಂಗಳೂರು ನಗರ",
+      "state": "KA",
+      "pin_code": null
+    },
+    "extent": {
+      "value": 1200,
+      "unit": "sqft",
+      "sqft_normalized": 1200
+    },
+    "parties": {
+      "sellers": [
+        "ವಿಜಯ್ ಶೆಟ್ಟಿ"
+      ],
+      "buyers": [
+        "ಮೀರಾ ರಾವ್"
+      ]
+    },
+    "consideration": {
+      "amount_inr": 5500000,
+      "date": "2026-06-12"
+    },
+    "chain_of_title": [
+      {
+        "from": "ವಿಜಯ್ ಶೆಟ್ಟಿ",
+        "to": "ಮೀರಾ ರಾವ್",
+        "instrument": "sale",
+        "date": "2026-06-12",
+        "registration_number": null
+      }
+    ],
+    "encumbrances": [
+      {
+        "type": "mortgage",
+        "holder": "ಕಾವೇರಿ ಕೋ-ಆಪರೇಟಿವ್ ಬ್ಯಾಂಕ್",
+        "amount_inr": 1800000,
+        "status": "active",
+        "date": null
+      }
+    ],
+    "boundaries": {
+      "north": null,
+      "south": null,
+      "east": null,
+      "west": null
+    },
+    "geo": {
+      "lat": 13.1007,
+      "lng": 77.5963,
+      "precision": "locality",
+      "source": "geocode"
+    },
+    "risk_flags": [
+      {
+        "code": "ACTIVE_ENCUMBRANCE",
+        "severity": "red",
+        "message": "Active mortgage held by ಕಾವೇರಿ ಕೋ-ಆಪರೇಟಿವ್ ಬ್ಯಾಂಕ್ (₹18,00,000).",
+        "evidence_doc_id": null
+      },
+      {
+        "code": "BELOW_GUIDANCE",
+        "severity": "red",
+        "message": "Deal price ₹55,00,000 is below the guidance value ₹66,00,000 — registration is blocked in Karnataka until duty is paid on the higher value.",
+        "evidence_doc_id": null
+      }
+    ],
+    "valuation": {
+      "matched_rate": {
+        "state": "KA",
+        "district": "Bengaluru Urban",
+        "taluk": "Bengaluru North",
+        "hobli": null,
+        "locality_native": "ಯಲಹಂಕ",
+        "locality_romanized": "Yelahanka",
+        "property_type": "residential_site",
+        "road_width_category": "12 ಮೀ ವರೆಗೆ",
+        "rate_per_sqft_inr": 5500,
+        "effective_date": "2024-04-01",
+        "source_notification": "ka_bengaluru_north_guidance.pdf"
+      },
+      "match_confidence": 1,
+      "match_method": "exact",
+      "guidance_value_total_inr": 6600000,
+      "deal_price_inr": 5500000,
+      "gap_pct": -0.16666666666666666,
+      "duty_basis_inr": 6600000,
+      "stamp_duty_inr": 330000,
+      "cess_inr": 33000,
+      "surcharge_inr": 6600,
+      "registration_fee_inr": 132000,
+      "total_transaction_cost_inr": 501600,
+      "flags": [
+        "BELOW_GUIDANCE"
+      ]
+    }
+  },
+  {
+    "parcel_id": "89ea7d2f-8837-43cc-8d30-2429069071e0",
+    "created_at": "2026-07-16T04:51:06.290Z",
+    "source_documents": [
+      {
+        "doc_id": "3f26c55c-b125-4e25-83a5-a8a4312ede37",
+        "doc_type": "sale_deed",
+        "language": "hi",
+        "filename": "hi-sale-deed.pdf",
+        "extraction_confidence": 0.99
+      }
+    ],
+    "identifiers": {
+      "survey_number": "88/1",
+      "site_number": null,
+      "khata_number": null,
+      "village": "व्हाइटफील्ड",
+      "hobli": null,
+      "taluk": "बैंगलुरु पूर्व",
+      "district": null,
+      "state": "KA",
+      "pin_code": null
+    },
+    "extent": {
+      "value": 1500,
+      "unit": "sqft",
+      "sqft_normalized": 1500
+    },
+    "parties": {
+      "sellers": [
+        "निखिल वर्मा"
+      ],
+      "buyers": [
+        "अनन्या सिंह"
+      ]
+    },
+    "consideration": {
+      "amount_inr": 9600000,
+      "date": "2026-06-14"
+    },
+    "chain_of_title": [
+      {
+        "from": "निखिल वर्मा",
+        "to": "अनन्या सिंह",
+        "instrument": "sale",
+        "date": "2026-06-14",
+        "registration_number": null
+      }
+    ],
+    "encumbrances": [],
+    "boundaries": {
+      "north": null,
+      "south": null,
+      "east": null,
+      "west": null
+    },
+    "geo": {
+      "lat": 12.9698,
+      "lng": 77.75,
+      "precision": "locality",
+      "source": "geocode"
+    },
+    "risk_flags": [],
+    "valuation": {
+      "matched_rate": {
+        "state": "KA",
+        "district": "Bengaluru Urban",
+        "taluk": "Bengaluru East",
+        "hobli": null,
+        "locality_native": "ವೈಟ್‌ಫೀಲ್ಡ್",
+        "locality_romanized": "Whitefield",
+        "property_type": "residential_site",
+        "road_width_category": "12 ಮೀ ವರೆಗೆ",
+        "rate_per_sqft_inr": 6000,
+        "effective_date": "2024-04-01",
+        "source_notification": "ka_bengaluru_east_guidance.pdf"
+      },
+      "match_confidence": 1,
+      "match_method": "llm_adjudicated",
+      "guidance_value_total_inr": 9000000,
+      "deal_price_inr": 9600000,
+      "gap_pct": 0.06666666666666667,
+      "duty_basis_inr": 9600000,
+      "stamp_duty_inr": 480000,
+      "cess_inr": 48000,
+      "surcharge_inr": 9600,
+      "registration_fee_inr": 192000,
+      "total_transaction_cost_inr": 729600,
+      "flags": []
+    }
+  },
+  {
+    "parcel_id": "542387b0-e3fa-4d78-bb94-9ca08d6b96b6",
+    "created_at": "2026-07-16T04:51:24.628Z",
+    "source_documents": [
+      {
+        "doc_id": "acf69496-8dfa-4134-99e1-6c0b538b50b1",
+        "doc_type": "sale_deed",
+        "language": "en",
+        "filename": "en-sale-deed.pdf",
+        "extraction_confidence": 0.99
+      }
+    ],
+    "identifiers": {
+      "survey_number": "102/4",
+      "site_number": null,
+      "khata_number": null,
+      "village": "Whitefield",
+      "hobli": null,
+      "taluk": "Bengaluru East",
+      "district": null,
+      "state": "KA",
+      "pin_code": null
+    },
+    "extent": {
+      "value": 1800,
+      "unit": "sqft",
+      "sqft_normalized": 1800
+    },
+    "parties": {
+      "sellers": [
+        "Daniel Thomas",
+        "Priya Thomas"
+      ],
+      "buyers": [
+        "Kavya Menon"
+      ]
+    },
+    "consideration": {
+      "amount_inr": 12500000,
+      "date": "2026-06-16"
+    },
+    "chain_of_title": [
+      {
+        "from": "Daniel Thomas and Priya Thomas",
+        "to": "Kavya Menon",
+        "instrument": "sale",
+        "date": "2026-06-16",
+        "registration_number": null
+      }
+    ],
+    "encumbrances": [],
+    "boundaries": {
+      "north": null,
+      "south": null,
+      "east": null,
+      "west": null
+    },
+    "geo": {
+      "lat": 12.9698,
+      "lng": 77.75,
+      "precision": "locality",
+      "source": "geocode"
+    },
+    "risk_flags": [],
+    "valuation": {
+      "matched_rate": {
+        "state": "KA",
+        "district": "Bengaluru Urban",
+        "taluk": "Bengaluru East",
+        "hobli": null,
+        "locality_native": "ವೈಟ್‌ಫೀಲ್ಡ್",
+        "locality_romanized": "Whitefield",
+        "property_type": "residential_site",
+        "road_width_category": "12 ಮೀ ವರೆಗೆ",
+        "rate_per_sqft_inr": 6000,
+        "effective_date": "2024-04-01",
+        "source_notification": "ka_bengaluru_east_guidance.pdf"
+      },
+      "match_confidence": 1,
+      "match_method": "exact",
+      "guidance_value_total_inr": 10800000,
+      "deal_price_inr": 12500000,
+      "gap_pct": 0.1574074074074074,
+      "duty_basis_inr": 12500000,
+      "stamp_duty_inr": 625000,
+      "cess_inr": 62500,
+      "surcharge_inr": 12500,
+      "registration_fee_inr": 250000,
+      "total_transaction_cost_inr": 950000,
+      "flags": []
+    }
+  }
+]

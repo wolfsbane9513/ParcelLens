@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ParcelCard } from "@/components/ParcelCard";
+import { ParcelMap } from "@/components/ParcelMap";
+import { PortfolioTable } from "@/components/PortfolioTable";
+import { loadPortfolio, savePortfolio, upsertParcels, parsePortfolioJson } from "@/lib/portfolio";
 import type { ParcelRecord } from "@/lib/schemas";
 
 type ExtractResponse =
@@ -9,114 +13,168 @@ type ExtractResponse =
   | { status: "not_a_property_document" }
   | { status: "error"; message: string };
 
-const STEPS = ["Reading document", "Extracting fields", "Flagging risks"];
+type Status = { kind: "idle" | "not_a_doc" | "error"; message?: string };
+
+const STEPS = ["Reading document", "Extracting fields", "Matching locality", "Valuing"];
 
 export default function Home() {
-  const [files, setFiles] = useState<File[]>([]);
+  const [parcels, setParcels] = useState<ParcelRecord[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<ExtractResponse | null>(null);
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const importRef = useRef<HTMLInputElement>(null);
 
-  async function runExtraction(selected: File[]) {
-    if (selected.length === 0) return;
+  // Hydrate from localStorage (the store), and persist on change.
+  useEffect(() => setParcels(loadPortfolio()), []);
+  useEffect(() => {
+    if (parcels.length) savePortfolio(parcels);
+  }, [parcels]);
+
+  const selected = parcels.find((p) => p.parcel_id === selectedId) ?? null;
+
+  async function valuate(parcel: ParcelRecord): Promise<ParcelRecord> {
+    try {
+      const res = await fetch("/api/valuate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ parcel }),
+      });
+      const data = await res.json();
+      return data.status === "ok" ? (data.parcel as ParcelRecord) : parcel;
+    } catch {
+      return parcel; // keep the extracted parcel even if valuation fails
+    }
+  }
+
+  async function addFiles(selectedFiles: File[]) {
+    if (selectedFiles.length === 0) return;
     setBusy(true);
-    setResult(null);
+    setStatus({ kind: "idle" });
     try {
       const form = new FormData();
-      for (const f of selected) form.append("files", f);
+      for (const f of selectedFiles) form.append("files", f);
       const res = await fetch("/api/extract", { method: "POST", body: form });
-      setResult((await res.json()) as ExtractResponse);
+      const data = (await res.json()) as ExtractResponse;
+
+      if (data.status === "not_a_property_document") return setStatus({ kind: "not_a_doc" });
+      if (data.status === "error") return setStatus({ kind: "error", message: data.message });
+
+      const valued = await Promise.all(data.parcels.map(valuate));
+      setParcels((cur) => upsertParcels(cur, valued));
+      if (valued[0]) setSelectedId(valued[0].parcel_id);
     } catch {
-      setResult({ status: "error", message: "Could not reach the extraction service. Is the dev server running?" });
+      setStatus({ kind: "error", message: "Could not reach the service. Is the dev server running?" });
     } finally {
       setBusy(false);
     }
   }
 
-  function onSelect(list: FileList | null) {
-    const selected = Array.from(list ?? []);
-    setFiles(selected);
-    void runExtraction(selected);
+  function exportJson() {
+    const blob = new Blob([JSON.stringify(parcels, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "parcellens-portfolio.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importJson(file: File) {
+    const parsed = parsePortfolioJson(await file.text());
+    if (!parsed) return setStatus({ kind: "error", message: "That file is not a valid ParcelLens portfolio." });
+    setParcels((cur) => upsertParcels(cur, parsed));
+    if (parsed[0]) setSelectedId(parsed[0].parcel_id);
   }
 
   return (
     <main className="min-h-screen bg-[#f4f1ea] text-[#17211c]">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6 lg:px-10 lg:py-8">
-        <header className="flex items-center justify-between border-b border-[#17211c]/15 pb-5">
+      <div className="mx-auto flex min-h-screen max-w-[1400px] flex-col px-5 py-5 lg:px-8">
+        <header className="flex items-center justify-between border-b border-[#17211c]/15 pb-4">
           <div className="flex items-center gap-3">
             <div className="grid size-9 place-items-center rounded-full bg-[#17382a] text-sm font-bold text-[#c7f36b]">P</div>
             <span className="text-sm font-semibold tracking-[0.22em] uppercase">ParcelLens</span>
           </div>
-          <span className="rounded-full border border-[#17211c]/20 px-3 py-1 text-xs font-semibold tracking-[0.12em] uppercase text-[#526058]">Phase 1 · extraction</span>
+          <div className="flex items-center gap-2">
+            <label className="cursor-pointer rounded-full border border-[#17211c]/20 px-3 py-1.5 text-xs font-semibold text-[#526058] hover:border-[#17382a]">
+              Import
+              <input ref={importRef} type="file" accept=".json" className="sr-only" onChange={(e) => e.target.files?.[0] && importJson(e.target.files[0])} />
+            </label>
+            <button onClick={exportJson} disabled={!parcels.length} className="rounded-full border border-[#17211c]/20 px-3 py-1.5 text-xs font-semibold text-[#526058] hover:border-[#17382a] disabled:opacity-40">
+              Export portfolio
+            </button>
+          </div>
         </header>
 
-        <section className="grid flex-1 gap-10 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
-          <div className="lg:sticky lg:top-8 lg:self-start">
-            <p className="mb-5 text-xs font-bold tracking-[0.3em] uppercase text-[#758176]">Multilingual property triage</p>
-            <h1 className="max-w-xl text-4xl leading-[1.02] font-semibold tracking-[-0.04em] sm:text-5xl">Find the risk hiding in the paperwork.</h1>
-            <p className="mt-5 max-w-md text-base leading-7 text-[#526058]">Upload a sale deed or encumbrance certificate — Kannada, Hindi, or English. ParcelLens reads it with GPT-5.6 and returns a structured screening brief with title and encumbrance risks flagged.</p>
-
-            <label className="group mt-8 flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#86a26d] bg-[#f4f8e9] px-6 text-center transition hover:border-[#17382a] hover:bg-[#edf5d9]">
-              <input type="file" multiple accept=".pdf,.png,.jpg,.jpeg" className="sr-only" disabled={busy} onChange={(e) => onSelect(e.target.files)} />
-              <span className="mb-3 grid size-11 place-items-center rounded-2xl bg-[#17382a] text-2xl text-[#c7f36b]">+</span>
-              <span className="font-semibold">Drop a sale deed or EC here</span>
-              <span className="mt-1.5 text-sm text-[#68766b]">PDF, PNG, or JPG · upload a deed + its EC together to merge them</span>
+        <div className="grid flex-1 gap-6 py-6 lg:grid-cols-[1.15fr_0.85fr]">
+          {/* Left: upload + map + portfolio */}
+          <div className="flex flex-col gap-5">
+            <label className={`group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed px-5 py-4 transition ${busy ? "border-[#86a26d] bg-[#f4f8e9]" : "border-[#86a26d] bg-[#f4f8e9] hover:border-[#17382a] hover:bg-[#edf5d9]"}`}>
+              <input type="file" multiple accept=".pdf,.png,.jpg,.jpeg" className="sr-only" disabled={busy} onChange={(e) => addFiles(Array.from(e.target.files ?? []))} />
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#17382a] text-xl text-[#c7f36b]">+</span>
+              <div>
+                <p className="font-semibold">Add a sale deed or encumbrance certificate</p>
+                <p className="text-sm text-[#68766b]">Kannada, Hindi, or English · upload a deed + its EC together to merge them</p>
+              </div>
             </label>
 
-            {files.length > 0 && (
-              <div className="mt-4 rounded-xl bg-[#fffdf8] p-3 text-sm shadow-sm">
-                {files.map((file) => (
-                  <p key={`${file.name}-${file.size}`} className="truncate text-[#526058]">{file.name}</p>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="min-w-0">
             {busy && (
-              <div className="rounded-2xl border border-[#17211c]/12 bg-[#fffdf8] p-8">
-                <p className="text-sm font-semibold text-[#17382a]">Analyzing documents…</p>
-                <ul className="mt-4 space-y-2">
+              <div className="rounded-2xl border border-[#17211c]/12 bg-[#fffdf8] p-5">
+                <p className="text-sm font-semibold text-[#17382a]">Analyzing…</p>
+                <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
                   {STEPS.map((s) => (
-                    <li key={s} className="flex items-center gap-3 text-sm text-[#526058]">
-                      <span className="size-2 animate-pulse rounded-full bg-[#86a26d]" />
-                      {s}
-                    </li>
+                    <span key={s} className="flex items-center gap-2 text-sm text-[#526058]">
+                      <span className="size-2 animate-pulse rounded-full bg-[#86a26d]" />{s}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
-            {!busy && result?.status === "ok" && (
-              <div className="space-y-6">
-                <p className="text-sm font-semibold text-[#526058]">{result.parcels.length} parcel{result.parcels.length === 1 ? "" : "s"} extracted</p>
-                {result.parcels.map((p) => <ParcelCard key={p.parcel_id} parcel={p} />)}
+            {status.kind === "not_a_doc" && (
+              <div className="rounded-2xl border border-[#e2c98a] bg-[#fbf4e0] px-5 py-4 text-sm text-[#8a5a10]">
+                That doesn&apos;t look like a property document. ParcelLens reads sale deeds, ECs, khata, and RTC extracts.
               </div>
             )}
-
-            {!busy && result?.status === "not_a_property_document" && (
-              <div className="rounded-2xl border border-[#e2c98a] bg-[#fbf4e0] p-8 text-center">
-                <p className="text-lg font-semibold text-[#8a5a10]">That doesn&apos;t look like a property document.</p>
-                <p className="mt-2 text-sm text-[#7a6a45]">ParcelLens reads sale deeds, encumbrance certificates, khata, and RTC extracts. Try one of those.</p>
-              </div>
+            {status.kind === "error" && (
+              <div className="rounded-2xl border border-[#e2a08a] bg-[#fbe8e0] px-5 py-4 text-sm text-[#9f1d1d]">{status.message}</div>
             )}
 
-            {!busy && result?.status === "error" && (
-              <div className="rounded-2xl border border-[#e2a08a] bg-[#fbe8e0] p-8 text-center">
-                <p className="text-lg font-semibold text-[#9f1d1d]">Extraction failed</p>
-                <p className="mt-2 text-sm text-[#8a5145]">{result.message}</p>
-              </div>
-            )}
+            <ParcelMap parcels={parcels} selectedId={selectedId} onSelect={setSelectedId} />
 
-            {!busy && !result && (
-              <div className="grid min-h-44 place-items-center rounded-2xl border border-dashed border-[#17211c]/15 p-8 text-center text-sm text-[#8a9389]">
-                Extracted parcels appear here.
+            {parcels.length > 0 ? (
+              <PortfolioTable parcels={parcels} selectedId={selectedId} onSelect={setSelectedId} />
+            ) : (
+              <div className="grid place-items-center rounded-2xl border border-dashed border-[#17211c]/15 py-10 text-center text-sm text-[#8a9389]">
+                Upload documents to build a portfolio. Try the bundled samples in <code className="mx-1 rounded bg-[#eef2e4] px-1.5 py-0.5">data/samples/</code>.
               </div>
             )}
           </div>
-        </section>
 
-        <footer className="flex flex-col gap-2 border-t border-[#17211c]/15 pt-5 text-xs text-[#68766b] sm:flex-row sm:items-center sm:justify-between">
-          <span>Screening tool — not a substitute for a legal title opinion.</span>
+          {/* Right: selected parcel */}
+          <div className="lg:sticky lg:top-5 lg:self-start">
+            {selected ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold tracking-wide text-[#526058]">Selected parcel</h2>
+                  <Link href={`/parcels/${selected.parcel_id}`} className="text-xs font-semibold text-[#2f6b4f] hover:underline">
+                    Open full detail →
+                  </Link>
+                </div>
+                <ParcelCard parcel={selected} />
+              </div>
+            ) : (
+              <div className="grid min-h-[300px] place-items-center rounded-[1.5rem] border border-[#17211c]/12 bg-[#fffdf8] p-8 text-center">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-[-0.03em]">Find the risk hiding in the paperwork.</h1>
+                  <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-[#526058]">Upload regional-language deeds and ECs. ParcelLens extracts them with GPT-5.6, flags title and valuation risk, and pins each parcel on the map. Select a pin or row to see its brief.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <footer className="flex flex-col gap-2 border-t border-[#17211c]/15 pt-4 text-xs text-[#68766b] sm:flex-row sm:items-center sm:justify-between">
+          <span>Screening tool — not a legal title opinion. Cost rates as configured; verify at the SRO.</span>
           <span>Built for OpenAI Build Week · Work &amp; Productivity</span>
         </footer>
       </div>
