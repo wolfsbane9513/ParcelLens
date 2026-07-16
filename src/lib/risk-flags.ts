@@ -126,18 +126,6 @@ export function evaluateRiskFlags(
     }
   }
 
-  // MISSING_CONVERSION — rate match is agricultural but deed is residential.
-  // Dormant until valuation attaches a matched_rate (Phase 4); harmless now.
-  const rate = parcel.valuation?.matched_rate;
-  if (rate?.property_type === "agricultural") {
-    flags.push({
-      code: "MISSING_CONVERSION",
-      severity: "amber",
-      message: "Guidance rate is agricultural but the parcel is used as a residential site — check for land-use conversion (DC conversion).",
-      evidence_doc_id: null,
-    });
-  }
-
   // LOW_EXTRACTION_CONFIDENCE — any doc read with low confidence.
   for (const doc of parcel.source_documents) {
     if (doc.extraction_confidence < 0.7) {
@@ -148,6 +136,36 @@ export function evaluateRiskFlags(
         evidence_doc_id: doc.doc_id,
       });
     }
+  }
+
+  return flags;
+}
+
+// Flags that only exist once a valuation is attached (Phase 4). Kept separate so
+// re-running them doesn't require the extract-time per-doc extents.
+export function valuationRiskFlags(parcel: ParcelRecord): RiskFlag[] {
+  const flags: RiskFlag[] = [];
+  const v = parcel.valuation;
+  if (!v) return flags;
+
+  // BELOW_GUIDANCE — registration-blocking in Karnataka.
+  if (v.flags.includes("BELOW_GUIDANCE")) {
+    flags.push({
+      code: "BELOW_GUIDANCE",
+      severity: "red",
+      message: `Deal price ₹${v.deal_price_inr.toLocaleString("en-IN")} is below the guidance value ₹${v.guidance_value_total_inr.toLocaleString("en-IN")} — registration is blocked in Karnataka until duty is paid on the higher value.`,
+      evidence_doc_id: null,
+    });
+  }
+
+  // MISSING_CONVERSION — rate match is agricultural but the parcel is a site.
+  if (v.matched_rate?.property_type === "agricultural") {
+    flags.push({
+      code: "MISSING_CONVERSION",
+      severity: "amber",
+      message: "Guidance rate is agricultural but the parcel is used as a residential site — check for land-use conversion (DC conversion).",
+      evidence_doc_id: null,
+    });
   }
 
   return flags;

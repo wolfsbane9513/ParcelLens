@@ -37,7 +37,7 @@ const TABLES: Table[] = [
     notification: "KA/SRO/2024/BNG-N/17",
     effective: "01-04-2024",
     localities: [
-      { native: "ಯಲಹಂಕ", romanized: "Yelahanka", base: 6500 },
+      { native: "ಯಲಹಂಕ", romanized: "Yelahanka", base: 5500 },
       { native: "ಯಲಹಂಕ ನ್ಯೂ ಟೌನ್", romanized: "Yelahanka New Town", base: 7200 },
       { native: "ಜಕ್ಕೂರು", romanized: "Jakkur", base: 5800 },
       { native: "ಹೆಬ್ಬಾಳ", romanized: "Hebbal", base: 9500 },
@@ -52,7 +52,7 @@ const TABLES: Table[] = [
     notification: "KA/SRO/2024/BNG-E/23",
     effective: "01-04-2024",
     localities: [
-      { native: "ವೈಟ್‌ಫೀಲ್ಡ್", romanized: "Whitefield", base: 8800 },
+      { native: "ವೈಟ್‌ಫೀಲ್ಡ್", romanized: "Whitefield", base: 6000 },
       { native: "ವರ್ತೂರು", romanized: "Varthur", base: 6200 },
       { native: "ಮಾರತಹಳ್ಳಿ", romanized: "Marathahalli", base: 7600 },
       { native: "ಕಾಡುಗೋಡಿ", romanized: "Kadugodi", base: 5400 },
