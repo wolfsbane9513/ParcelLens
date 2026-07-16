@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { DocExtractionSchema } from "../src/lib/prompts/extraction";
 import { RateExtractionSchema } from "../src/lib/prompts/rate-ingest";
+import { LocalityAdjudicationSchema } from "../src/lib/prompts/locality-adjudicate";
 
 // Keyless guard: proves the OpenAI SDK surface our pipeline calls actually
 // exists in the installed version, and that our zod schemas convert to a valid
@@ -14,11 +15,19 @@ describe("openai SDK contract", () => {
     expect(typeof client.responses.parse).toBe("function");
   });
 
+  it("exposes embeddings.create", () => {
+    expect(typeof client.embeddings.create).toBe("function");
+  });
+
   it("converts DocExtractionSchema to a text format", () => {
     expect(() => zodTextFormat(DocExtractionSchema, "doc_extraction")).not.toThrow();
   });
 
   it("converts RateExtractionSchema to a text format", () => {
     expect(() => zodTextFormat(RateExtractionSchema, "rate_table")).not.toThrow();
+  });
+
+  it("converts LocalityAdjudicationSchema to a text format", () => {
+    expect(() => zodTextFormat(LocalityAdjudicationSchema, "locality_adjudication")).not.toThrow();
   });
 });

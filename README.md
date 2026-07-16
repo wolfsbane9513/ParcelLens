@@ -13,8 +13,9 @@ Multilingual property due-diligence for real estate teams evaluating land in Ben
 - **Six synthetic sample documents** in `data/samples/` (2 Kannada deeds, 2 Kannada ECs, 1 Hindi deed, 1 English deed). One deed+EC pair carries a deliberate chain gap + active mortgage to exercise the red flags. These are synthetic demo documents, not legal records.
 
 - **Guidance-value (circle-rate) ingestion** (`scripts/ingest-rates.ts`): regional-language rate-table PDFs → GPT-5.6 vision → validated `RateEntry[]` in `data/rates/ka_bengaluru_urban.json`, each row carrying native + romanized locality and a source citation. Idempotent (re-runs skip already-ingested files; `--force` to re-extract) with a row-completeness guard against silent table truncation.
+- **Cross-script locality matching** (`src/lib/locality-match.ts`): a parcel's locality (from `village` *or* `hobli`, either script) is matched to the rate index in three tiers — exact normalized string → `text-embedding-3-large` cosine (accept on score > 0.85 and margin > 0.05) → GPT-5.6 adjudication of the top candidates, else `none` (no false positive). Localities are geocoded to committed centroids (`data/localities/index.json`), so the parcel gets a map pin with only the OpenAI key.
 
-Locality matching, valuation, the map/portfolio surface, and the language toggle are staged in later phases (see `PARCELLENS_BUILD_PLAN.md`).
+Valuation, the map/portfolio surface, and the language toggle are staged in later phases (see `PARCELLENS_BUILD_PLAN.md`).
 
 > **Rate data is synthetic.** Per plan §9, the guidance-value PDFs in `data/rates/raw/` are generated Kannada rate tables (`scripts/generate-rate-table.ts`), not live Kaveri-portal downloads — the portal has CAPTCHA/login. The **ingestion pipeline** is the product; swapping in real downloaded PDFs is a drop-in.
 
@@ -50,6 +51,13 @@ npm run lint
 ```bash
 npm run generate:rates    # synthetic Kannada guidance-value PDFs -> data/rates/raw/
 npm run ingest:rates      # GPT-5.6 vision -> data/rates/ka_bengaluru_urban.json (needs key)
+```
+
+### Locality index (Phase 3)
+
+```bash
+npm run build:index    # embed localities + centroids -> data/localities/index.json (needs key)
+npm run verify:match   # live: exercises exact / embedding / adjudicated / none tiers
 ```
 
 Regenerate the sample deeds with `npm run generate:samples`. **Note:** the generators render Kannada/Hindi via system fonts — on a fresh Linux box install `fonts-noto` (Noto Sans Kannada + Devanagari) or text renders as boxes. The committed PDFs/PNGs are already rendered, so this only matters if you regenerate.
