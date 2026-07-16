@@ -108,15 +108,19 @@ export function evaluateRiskFlags(
     }
   }
 
-  // NAME_MISMATCH — current seller not among the most recent chain "to" parties.
-  const latest = chain[chain.length - 1];
-  if (latest && parcel.parties.sellers.length > 0) {
-    const sellerMatches = parcel.parties.sellers.some((s) => namesMatch(s, latest.to));
+  // NAME_MISMATCH — the current seller should be the most recent *prior* owner.
+  // A standalone sale deed records its own transaction as seller -> buyer, so we
+  // exclude entries whose "to" is a current buyer before checking; with no prior
+  // history there is nothing to contradict, so we don't flag.
+  const priorChain = chain.filter((c) => !parcel.parties.buyers.some((b) => namesMatch(b, c.to)));
+  const lastPriorOwner = priorChain[priorChain.length - 1];
+  if (lastPriorOwner && parcel.parties.sellers.length > 0) {
+    const sellerMatches = parcel.parties.sellers.some((s) => namesMatch(s, lastPriorOwner.to));
     if (!sellerMatches) {
       flags.push({
         code: "NAME_MISMATCH",
         severity: "amber",
-        message: `Selling party (${parcel.parties.sellers.join(", ")}) does not match the last recorded owner in the title chain (${latest.to}).`,
+        message: `Selling party (${parcel.parties.sellers.join(", ")}) does not match the last recorded owner in the title chain (${lastPriorOwner.to}).`,
         evidence_doc_id: null,
       });
     }

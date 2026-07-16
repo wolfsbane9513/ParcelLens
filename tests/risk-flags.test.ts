@@ -118,6 +118,19 @@ describe("evaluateRiskFlags", () => {
     expect(codes(p)).not.toContain("NAME_MISMATCH");
   });
 
+  it("does not flag a clean sale deed whose only chain entry is its own sale", () => {
+    // Regression: GPT extracts a standalone deed's transaction as seller -> buyer.
+    // The buyer is the latest "to" but that must not read as a name mismatch.
+    const p = baseParcel({
+      parties: { sellers: ["Ravi Kumar", "Asha Kumar"], buyers: ["Meera Rao"] },
+      chain_of_title: [
+        { from: "Ravi Kumar and Asha Kumar", to: "Meera Rao", instrument: "sale", date: "2026-06-10", registration_number: null },
+      ],
+    });
+    expect(codes(p)).not.toContain("NAME_MISMATCH");
+    expect(evaluateRiskFlags(p)).toEqual([]);
+  });
+
   it("raises LOW_EXTRACTION_CONFIDENCE for a weak read", () => {
     const p = baseParcel({
       source_documents: [

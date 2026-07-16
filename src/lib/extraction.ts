@@ -60,7 +60,10 @@ function groupByParcel(docs: ReadDoc[]): ReadDoc[][] {
   const groups = new Map<string, ReadDoc[]>();
   for (const d of docs) {
     const id = d.extraction.identifiers;
-    const key = `${normKey(id.survey_number)}|${normKey(id.village)}` || d.doc_id;
+    // Survey number is the strong parcel identifier; a deed and its EC share it
+    // even when one calls the locality a "village" and the other a "hobli".
+    // ponytail: same-survey docs in one upload are assumed to be the same parcel.
+    const key = normKey(id.survey_number) || normKey(id.village) || normKey(id.site_number) || d.doc_id;
     const bucket = groups.get(key) ?? [];
     bucket.push(d);
     groups.set(key, bucket);
